@@ -1,5 +1,5 @@
 var URL = require('url');
-import createContainer from './docker';
+import runLambda from './docker';
 
 module.exports = function createHandler({
   localConfig,
@@ -17,14 +17,20 @@ module.exports = function createHandler({
       query
     } = URL.parse(url, true);
 
-    var payload = {
-      body: {
+    var body = {
         path: path,
         query: query,
-        headers: headers
+        headers: headers,
+        method: method
       }
-    }
+    var payload = {
+      body: JSON.stringify(body)
+    };
 
-    await createContainer(config, `'${JSON.stringify(payload)}'`, output);
+    var {data, log} = await runLambda(config, `'${JSON.stringify(payload)}'`);
+    output.log(log);
+    res.writeHead(data.statusCode, data.headers);
+    res.write(data.body);
+    res.end( );
   };
 };

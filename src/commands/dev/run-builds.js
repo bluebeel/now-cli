@@ -48,7 +48,7 @@ module.exports = async function runBuilds({
       'entrypoint': "",
       'workPath': process.cwd()
     };
-    var entrypoint = ""
+    var entrypoint = "";
 
     const files = await glob(src);
     files.forEach((file) => {
@@ -84,7 +84,7 @@ module.exports = async function runBuilds({
       output.log(`Image for the runtime ${lambda[entrypoint].runtime} not available on the system...`);
       output.log(`Pulling the image from remote...`);
       docker.pull(`lambci/lambda:${lambda[entrypoint].runtime}`, (err, stream) => {
-        output.log(`Building the image lambci/lambda:${lambda[entrypoint].runtime}...`)
+        output.log(`Building the image lambci/lambda:${lambda[entrypoint].runtime}...`);
         stream.on('end', () => {
           output.log(`Image pulled...`);
           return { 
