@@ -53,7 +53,7 @@ module.exports = async function main(ctx) {
 
   const server = new Server();
   server.on('request', handler);
-  server.listen(process.env.PORT || 3000, undefined, undefined, () => {
+  server.listen(0, undefined, undefined, () => {
     output.log(`🚀 Ready! http://localhost:${server.address().port}`);
     output.log('');
   });

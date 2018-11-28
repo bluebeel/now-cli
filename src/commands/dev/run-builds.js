@@ -65,15 +65,23 @@ module.exports = async function runBuilds({
     output.log(`Building ${chalk.bold(use)}...`);
     var lambda = await builder.build(buildInput);
 
-    const indexPath = await glob(`tmp/*/${entrypoint}`);
-    const indexDirectory = path.resolve(process.cwd(), path.dirname(indexPath[0]));
+    // depending on the constructor / runtime, the temporary folders differ.
+    let indexPath;
+    let indexDirectory;
+    if (entrypoint === "index.py") {
+      indexPath = await glob(`tmp/*/${entrypoint}`);
+      indexDirectory = path.resolve(process.cwd(), path.dirname(indexPath[0]));
+    } else if (entrypoint === "index.go") {
+      indexPath = await glob(`tmp/**/${lambda[entrypoint].handler}`);
+      indexDirectory = path.resolve(process.cwd(), path.dirname(indexPath[0]));
+    }
 
     // check if we have the image locally.
     // if not we pull the image.
     try {
-      output.log(`Image for the runtime ${lambda[entrypoint].runtime} available on the system...`);
       var image = docker.getImage(`lambci/lambda:${lambda[entrypoint].runtime}`);
       await image.inspect();
+      output.log(`Image for the runtime ${lambda[entrypoint].runtime} available on the system...`);
       return { 
         runtime: lambda[entrypoint].runtime,
         handler: lambda[entrypoint].handler,

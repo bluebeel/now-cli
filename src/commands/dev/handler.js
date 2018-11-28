@@ -22,7 +22,7 @@ module.exports = function createHandler({
         query: query,
         headers: headers,
         method: method
-      }
+      };
     var payload = {
       body: JSON.stringify(body)
     };

@@ -12,5 +12,5 @@ module.exports = async function runLambda({
   return {
     data: JSON.parse(stdout),
     log: stderr
-  }
+  };
 };
