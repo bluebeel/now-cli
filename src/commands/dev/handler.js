@@ -30,7 +30,11 @@ module.exports = function createHandler({
     var {data, log} = await runLambda(config, `'${JSON.stringify(payload)}'`);
     output.log(log);
     res.writeHead(data.statusCode, data.headers);
-    res.write(data.body);
+    if (data.encoding) {
+      res.write(Buffer.from(data.body, 'base64'));
+    } else {
+      res.write(data.body);
+    }
     res.end( );
   };
 };
