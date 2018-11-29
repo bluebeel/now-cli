@@ -2,6 +2,7 @@ const chalk = require('chalk');
 const path = require('path');
 const _glob = require('glob');
 const Docker = require('dockerode');
+const AdmZip = require('adm-zip');
 
 // ! __non_webpack_require__ didn't work, so hacking the hacky hacks
 const nodeRequire = eval('require');
@@ -65,16 +66,9 @@ module.exports = async function runBuilds({
     output.log(`Building ${chalk.bold(use)}...`);
     var lambda = await builder.build(buildInput);
 
-    // depending on the constructor / runtime, the temporary folders differ.
-    let indexPath;
-    let indexDirectory;
-    if (entrypoint === "index.py") {
-      indexPath = await glob(`tmp/*/${entrypoint}`);
-      indexDirectory = path.resolve(process.cwd(), path.dirname(indexPath[0]));
-    } else if (entrypoint === "index.go") {
-      indexPath = await glob(`tmp/**/${lambda[entrypoint].handler}`);
-      indexDirectory = path.resolve(process.cwd(), path.dirname(indexPath[0]));
-    }
+    var zip = new AdmZip(lambda[entrypoint].zipBuffer);
+    // extracts everything
+	  zip.extractAllTo(`${path.resolve(process.cwd(), "now-dev")}`, true);
 
     // check if we have the image locally.
     // if not we pull the image.
@@ -85,13 +79,13 @@ module.exports = async function runBuilds({
       return { 
         runtime: lambda[entrypoint].runtime,
         handler: lambda[entrypoint].handler,
-        dir: indexDirectory
+        dir: path.resolve(process.cwd(), "now-dev")
       };
     } catch (e) {
       // we pull the image
       output.log(`Image for the runtime ${lambda[entrypoint].runtime} not available on the system...`);
       output.log(`Pulling the image from remote...`);
-      docker.pull(`lambci/lambda:${lambda[entrypoint].runtime}`, (err, stream) => {
+      await docker.pull(`lambci/lambda:${lambda[entrypoint].runtime}`, (err, stream) => {
         output.log(`Building the image lambci/lambda:${lambda[entrypoint].runtime}...`);
         stream.on('end', () => {
           output.log(`Image pulled...`);

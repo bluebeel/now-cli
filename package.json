@@ -107,6 +107,7 @@
     "@sentry/node": "4.3.0",
     "@zeit/dockerignore": "0.0.3",
     "@zeit/source-map-support": "0.6.2",
+    "adm-zip": "0.4.13",
     "alpha-sort": "2.0.1",
     "ansi-escapes": "3.0.0",
     "ansi-regex": "3.0.0",
